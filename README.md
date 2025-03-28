@@ -2,7 +2,6 @@
 
 **Fragmentos do Destino** é um projeto minimalista que une filosofia, computação e o universo para proporcionar uma experiência imersiva e reflexiva. A aplicação exibe fragmentos filosóficos e perguntas retóricas que se transformam dinamicamente conforme a interação do usuário, complementadas por um ambiente visual e sonoro inspirado na vastidão do cosmos.
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)  
 [![Feito com Go](https://img.shields.io/badge/backend-Go-informational?logo=go)](https://golang.org)  
 [![Frontend](https://img.shields.io/badge/frontend-HTML%2FCSS%2FJS-orange)](#)
 
@@ -85,12 +84,6 @@ Abra o arquivo `frontend/index.html` no navegador ou sirva o diretório com um s
 ## 🌌 Inspiração
 
 Este projeto nasceu do desejo de transcender o utilitário da tecnologia e criar uma ponte entre o humano e o cósmico. Um espaço para contemplar, aceitar, rejeitar — e, talvez, se transformar através das palavras.
-
----
-
-## 📜 Licença
-
-Distribuído sob a Licença MIT. Veja o arquivo [`LICENSE`](LICENSE) para mais informações.
 
 ---
 
