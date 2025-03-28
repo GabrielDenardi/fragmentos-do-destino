@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fragmentos do Destino</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Georgia', serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+      flex-direction: column;
+      background-color: black;
+      overflow: hidden;
+      transition: background 0.5s ease;
+      letter-spacing: 0.5px;
+      line-height: 1.6;
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+    #quote {
+      font-size: 1.8em;
+      max-width: 80%;
+      margin-bottom: 20px;
+      color: white;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+    .buttons {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    button {
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      color: white;
+      padding: 8px 16px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s, transform 0.2s;
+      border-radius: 4px;
+    }
+    button:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="stars"></canvas>
+  <div id="quote">Carregando fragmento...</div>
+  <div class="buttons">
+    <button onclick="handleResponse('Aceito')">Aceito</button>
+    <button onclick="handleResponse('Rejeito')">Rejeito</button>
+  </div>
+
+  <audio id="ambience" loop>
+    <source src="001210_the-sound-of-universe-53546.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="whisper" loop style="display:none;">
+    <source src="superspacy-atmosphere-106826.mp3" type="audio/mpeg">
+  </audio>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    function startAudio() {
+      document.getElementById('ambience').play().catch(() => {});
+      document.getElementById('whisper').play().catch(() => {});
+      document.removeEventListener('click', startAudio);
+    }
+    document.addEventListener('click', startAudio);
+
+    const fragments = [
+      "Amor Fati: amar até o inevitável.",
+      "Você deseja que sua vida se repita eternamente?",
+      "Se tudo voltasse exatamente como foi, você mudaria algo?",
+      "Você resiste ou dança com o caos?",
+      "Aceitar o destino não é desistir, é abraçar a potência do que é.",
+      "O universo não tem porquê. E mesmo assim... existe.",
+      "Você vive como quem escolheu cada instante?",
+      "Tudo o que acontece, acontece como deveria — e nada mais.",
+      "Você é autor da sua história ou apenas uma testemunha?",
+      "A eternidade se esconde no agora."
+    ];
+
+    let currentQuote = "";
+
+    function nextFragment() {
+      const quoteEl = document.getElementById("quote");
+      quoteEl.style.opacity = 0;
+      setTimeout(() => {
+        const index = Math.floor(Math.random() * fragments.length);
+        currentQuote = fragments[index];
+        quoteEl.innerText = currentQuote;
+        quoteEl.style.opacity = 1;
+      }, 500);
+    }
+
+    function handleResponse(response) {
+      fetch('http://localhost:3000/click', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ buttonType: response })
+      })
+              .then(res => res.json())
+              .then(data => {
+                console.log("Resposta do servidor:", data);
+                fragments.length = 0;
+                fragments.push(...data.fragments);
+                nextFragment();
+              })
+              .catch(err => {
+                console.error("Erro na requisição:", err);
+                nextFragment();
+              });
+    }
+
+
+    const canvas = document.getElementById('stars');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    const stars = Array(200).fill().map(() => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      radius: Math.random() * 1.5,
+      alpha: Math.random(),
+      dx: (Math.random() - 0.5) * 0.1,
+      dy: (Math.random() - 0.5) * 0.1
+    }));
+
+    function animateStars() {
+      ctx.clearRect(0, 0, width, height);
+      const hour = new Date().getHours();
+      if (hour >= 6 && hour <= 18) {
+        let gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, Math.max(width, height));
+        gradient.addColorStop(0, "#222");
+        gradient.addColorStop(1, "#000");
+        ctx.fillStyle = gradient;
+      } else {
+        ctx.fillStyle = "black";
+      }
+      ctx.fillRect(0, 0, width, height);
+
+      for (let star of stars) {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+        ctx.fill();
+
+        star.x += star.dx;
+        star.y += star.dy;
+
+        if (star.x < 0 || star.x > width) star.dx *= -1;
+        if (star.y < 0 || star.y > height) star.dy *= -1;
+      }
+      requestAnimationFrame(animateStars);
+    }
+    animateStars();
+
+    document.getElementById('whisper').volume = 1;
+
+    nextFragment();
+  </script>
+</body>
+</html>
